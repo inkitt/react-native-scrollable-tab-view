@@ -13,6 +13,7 @@ const DefaultTabBar = React.createClass({
     goToPage: React.PropTypes.func,
     activeTab: React.PropTypes.number,
     tabs: React.PropTypes.array,
+    badges: React.PropTypes.array,
     backgroundColor: React.PropTypes.string,
     activeTextColor: React.PropTypes.string,
     inactiveTextColor: React.PropTypes.string,
@@ -33,13 +34,27 @@ const DefaultTabBar = React.createClass({
   renderTabOption(name, page) {
   },
 
-  renderTab(name, page, isTabActive, onPressHandler) {
+  renderBadge(badge) {
+    const backgroundColor = (!this.props.badgeColor) ? 'red' : badgeColor;
+
+    if (badge > 0) {
+      return (
+        <View style={[styles.badge, { backgroundColor }]}>
+          <Text style={styles.badgeText}>{badge}</Text>
+        </View>
+      );
+    }
+
+    return null;
+  },
+
+  renderTab(name, page, isTabActive, onPressHandler, badge) {
     const { activeTextColor, inactiveTextColor, textStyle, } = this.props;
     const textColor = isTabActive ? activeTextColor : inactiveTextColor;
     const fontWeight = isTabActive ? 'bold' : 'normal';
 
     return <Button
-      style={styles.flexOne}
+      style={{flex: 1, }}
       key={name}
       accessible={true}
       accessibilityLabel={name}
@@ -50,6 +65,7 @@ const DefaultTabBar = React.createClass({
         <Text style={[{color: textColor, fontWeight, }, textStyle, ]}>
           {name}
         </Text>
+        {this.renderBadge(badge)}
       </View>
     </Button>;
   },
@@ -65,17 +81,28 @@ const DefaultTabBar = React.createClass({
       bottom: 0,
     };
 
-    const left = this.props.scrollValue.interpolate({
-      inputRange: [0, 1, ], outputRange: [0,  containerWidth / numberOfTabs, ],
+    const translateX = this.props.scrollValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0,  containerWidth / numberOfTabs],
     });
     return (
       <View style={[styles.tabs, {backgroundColor: this.props.backgroundColor, }, this.props.style, ]}>
         {this.props.tabs.map((name, page) => {
           const isTabActive = this.props.activeTab === page;
           const renderTab = this.props.renderTab || this.renderTab;
-          return renderTab(name, page, isTabActive, this.props.goToPage);
+          return renderTab(name, page, isTabActive, this.props.goToPage, (!this.props.badges[page]) ? 0 : this.props.badges[page]);
         })}
-        <Animated.View style={[tabUnderlineStyle, { left, }, this.props.underlineStyle, ]} />
+        <Animated.View
+          style={[
+            tabUnderlineStyle,
+            {
+              transform: [
+                { translateX },
+              ]
+            },
+            this.props.underlineStyle,
+          ]}
+        />
       </View>
     );
   },
@@ -84,12 +111,10 @@ const DefaultTabBar = React.createClass({
 const styles = StyleSheet.create({
   tab: {
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: 10,
-  },
-  flexOne: {
-    flex: 1,
   },
   tabs: {
     height: 50,
@@ -101,6 +126,18 @@ const styles = StyleSheet.create({
     borderRightWidth: 0,
     borderColor: '#ccc',
   },
+  badge: {
+    width: 20,
+    height: 20,
+    marginLeft: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  badgeText: {
+    color: '#fff', 
+    fontSize: 10
+  }
 });
 
 module.exports = DefaultTabBar;
