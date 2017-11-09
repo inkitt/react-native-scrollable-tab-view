@@ -1,9 +1,8 @@
 const React = require('react');
-const {
-  PropTypes,
-  Component,
-} = React;
+const { Component } = React;
 const { ViewPropTypes } = ReactNative = require('react-native');
+const createReactClass = require('create-react-class');
+const PropTypes = require('prop-types');
 const {
   Dimensions,
   View,
@@ -24,7 +23,7 @@ const AnimatedViewPagerAndroid = Platform.OS === 'android' ?
   Animated.createAnimatedComponent(ViewPagerAndroid) :
   undefined;
 
-const ScrollableTabView = React.createClass({
+const ScrollableTabView = createReactClass({
   mixins: [TimerMixin, ],
   statics: {
     DefaultTabBar,
